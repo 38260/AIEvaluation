@@ -23,7 +23,7 @@ AIEvaluation/
 ├─ sample_data.xlsx             # 示例输入数据
 ├─ input/                       # 输入数据目录，放置待评估 xlsx/csv（如 sample1.xlsx）
 ├─ output/                      # 评估输出目录（结果表/报告/混淆矩阵PNG）
-├─ assets/                      # 资源文件（字体、示例图片等）
+├─ assets/                      # 资源文件
 ├─ src/                         # 代码实现（如 ai_evaluator.py）
 ├─ docs/                        # 额外文档（如 PRD）
 
