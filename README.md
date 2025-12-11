@@ -57,8 +57,8 @@ reason_field = reason                                ; AI返回结果中"理由"
 
 [Evaluation]
 ; 评估配置
-task_type = binary                                   ; 任务类型："binary"二分类/"multi"多分类
-positive_label = 是                                  ; 二分类正例标签（二分类任务必填）
+task_type = binary                                   ; 任务类型："binary"二分类
+positive_label = 是                                  ; 二分类正例标签（二分类任务）
 ```
 
 ## 输入数据格式
