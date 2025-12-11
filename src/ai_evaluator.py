@@ -165,21 +165,21 @@ class AIModelEvaluator:
         
         # 构建请求体 - 根据不同API格式进行调整
         # 这里是OpenAI格式，可根据实际API调整
-        messages = []
         
-        # 如果配置了系统提示词，则添加到消息列表中
+        
+        # 读系统提示词
         system_prompt_path = self.config.get('Prompt', 'system_prompt_path', fallback='')
         if system_prompt_path and os.path.exists(system_prompt_path):
             with open(system_prompt_path, 'r', encoding='utf-8') as f:
                 system_content = f.read()
-            messages.append({"role": "system", "content": system_content})
-        
-        # 添加用户提示词
-        messages.append({"role": "user", "content": prompt})
-        
+
+
         payload = {
             "model": model,
-            "messages": messages,
+            "messages": [
+                {"role": "system", "content": system_content}, # 系统提示词
+                {"role": "user", "content": prompt} # 用户提示词
+            ],
             "temperature": temperature,
             "response_format": {"type": "json_object"}  # 要求JSON格式返回
         }
