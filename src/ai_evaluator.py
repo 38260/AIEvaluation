@@ -165,11 +165,21 @@ class AIModelEvaluator:
         
         # 构建请求体 - 根据不同API格式进行调整
         # 这里是OpenAI格式，可根据实际API调整
+        messages = []
+        
+        # 如果配置了系统提示词，则添加到消息列表中
+        system_prompt_path = self.config.get('Prompt', 'system_prompt_path', fallback='')
+        if system_prompt_path and os.path.exists(system_prompt_path):
+            with open(system_prompt_path, 'r', encoding='utf-8') as f:
+                system_content = f.read()
+            messages.append({"role": "system", "content": system_content})
+        
+        # 添加用户提示词
+        messages.append({"role": "user", "content": prompt})
+        
         payload = {
             "model": model,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
+            "messages": messages,
             "temperature": temperature,
             "response_format": {"type": "json_object"}  # 要求JSON格式返回
         }
@@ -271,14 +281,6 @@ class AIModelEvaluator:
             # 构建用户提示词
             user_prompt = self.config.get('Prompt', 'user_prompt')
             prompt = user_prompt.format(content=content)
-            
-            # 如果配置了系统提示词，则一并发送
-            system_prompt_path = self.config.get('Prompt', 'system_prompt_path', fallback='')
-            if system_prompt_path and os.path.exists(system_prompt_path):
-                with open(system_prompt_path, 'r', encoding='utf-8') as f:
-                    system_prompt = f.read()
-                # 这里需要根据API格式调整如何发送system prompt
-                prompt = f"系统提示: {system_prompt}\n用户内容: {prompt}"
             
             # 调用AI API
             result = self.call_ai_api(prompt)
