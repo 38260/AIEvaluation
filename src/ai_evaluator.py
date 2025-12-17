@@ -167,7 +167,7 @@ class AIModelEvaluator:
         # 这里是OpenAI格式，可根据实际API调整
         
         
-        # 读系统提示词
+        # 读取系统提示词
         system_prompt_path = self.config.get('Prompt', 'system_prompt_path', fallback='')
         if system_prompt_path and os.path.exists(system_prompt_path):
             with open(system_prompt_path, 'r', encoding='utf-8') as f:
@@ -335,9 +335,38 @@ class AIModelEvaluator:
         # 二分类指标
         positive_label = self.config.get('Evaluation', 'positive_label')
         
-        # 将标签转换为二分类格式
-        y_true_binary = [1 if label == positive_label else 0 for label in y_true]
-        y_pred_binary = [1 if label == positive_label else 0 for label in y_pred]
+        # 检测标签的实际类型，确保类型匹配
+        # 如果标签是数字类型，将positive_label转换为数字；否则保持字符串
+        if len(y_true) > 0:
+            sample_label = y_true[0]
+            if isinstance(sample_label, (int, float)) or (isinstance(sample_label, str) and sample_label.isdigit()):
+                try:
+                    # 尝试将positive_label转换为数字
+                    positive_label = int(positive_label) if '.' not in str(positive_label) else float(positive_label)
+                except (ValueError, TypeError):
+                    # 如果转换失败，保持原样
+                    pass
+        
+        # 将标签转换为二分类格式（使用类型安全的比较）
+        def convert_to_binary(label, pos_label):
+            """将标签转换为二分类格式，支持类型转换"""
+            # 尝试直接比较
+            if label == pos_label:
+                return 1
+            # 尝试类型转换后比较
+            try:
+                if isinstance(label, (int, float)) and isinstance(pos_label, str):
+                    if str(label) == pos_label or label == float(pos_label):
+                        return 1
+                elif isinstance(label, str) and isinstance(pos_label, (int, float)):
+                    if label == str(pos_label) or float(label) == pos_label:
+                        return 1
+            except (ValueError, TypeError):
+                pass
+            return 0
+        
+        y_true_binary = [convert_to_binary(label, positive_label) for label in y_true]
+        y_pred_binary = [convert_to_binary(label, positive_label) for label in y_pred]
         
         # 计算指标
         metrics['accuracy'] = round(accuracy_score(y_true_binary, y_pred_binary), 4)
