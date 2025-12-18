@@ -109,9 +109,6 @@ class AIModelEvaluator:
         if missing_columns:
             raise ValueError(f"输入文件缺少必要列: {', '.join(missing_columns)}")
             
-        if df['ID'].duplicated().any():
-            logger.warning("发现重复的ID，将保留第一条记录")
-            
         if df['content'].isna().any() or (df['content'] == '').any():
             logger.warning("发现空的content字段")
             
@@ -129,9 +126,6 @@ class AIModelEvaluator:
         """
         logger = logging.getLogger(__name__)
         df = pd.read_excel(file_path)
-        
-        # 按ID去重，保留第一条
-        df = df.drop_duplicates(subset=['ID'], keep='first')
         
         # 打印标签分布
         label_counts = df['ground_truth'].value_counts()
